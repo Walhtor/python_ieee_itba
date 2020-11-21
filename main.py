@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Proyecto Integrador
+# Proyecto Integrador (2020)
 
 # Integrantes
 # Hugo Pastorino ID:41117
@@ -8,17 +8,34 @@
 # Opción 2: El mercado financiero
 # Data histórica descargada desde: https://stooq.com/db/h/
 # Seleccion de las 15 acciones mas operadas en Argentina 2020
+# Github: https://github.com/Walhtor/python_ieee_itba
 
 
 import matplotlib.pyplot as plt
 import pandas as pd
 import time
+import wget
 import os
 
-#from google.colab import drive
-
-#drive.mount('/content/drive/')
-
+#Comprobacion y descarga de los archivos de datos financieros
+if os.path.isfile('./xom.us.csv'):
+    print('Archivos de datos encontrados')
+else:
+    print('Descargando archivos de datos')
+    wget.download('https://github.com/Walhtor/python_ieee_itba/raw/master/data/aapl.us.csv')
+    wget.download('https://github.com/Walhtor/python_ieee_itba/raw/master/data/amzn.us.csv')
+    wget.download('https://github.com/Walhtor/python_ieee_itba/raw/master/data/ge.us.csv')
+    wget.download('https://github.com/Walhtor/python_ieee_itba/raw/master/data/gold.us.csv')
+    wget.download('https://github.com/Walhtor/python_ieee_itba/raw/master/data/goog.us.csv')
+    wget.download('https://github.com/Walhtor/python_ieee_itba/raw/master/data/jnj.us.csv')
+    wget.download('https://github.com/Walhtor/python_ieee_itba/raw/master/data/jpm.us.csv')
+    wget.download('https://github.com/Walhtor/python_ieee_itba/raw/master/data/mcd.us.csv')
+    wget.download('https://github.com/Walhtor/python_ieee_itba/raw/master/data/meli.us.csv')
+    wget.download('https://github.com/Walhtor/python_ieee_itba/raw/master/data/msft.us.csv')
+    wget.download('https://github.com/Walhtor/python_ieee_itba/raw/master/data/nflx.us.csv')
+    wget.download('https://github.com/Walhtor/python_ieee_itba/raw/master/data/tsla.us.csv')
+    wget.download('https://github.com/Walhtor/python_ieee_itba/raw/master/data/wmt.us.csv')
+    wget.download('https://github.com/Walhtor/python_ieee_itba/raw/master/data/xom.us.csv')
 
 def menu():
     tickers = ['aapl', 'amzn', 'ge', 'gold', 'goog', 'jnj', 'jpm', 'mcd', 'meli', 'msft', 'nflx', 'tsla', 'wmt', 'xom']
@@ -42,10 +59,9 @@ def menu():
   ''')
         seleccion = input('Seleccione la primera acción, ingrese el ticker:')
         if seleccion in tickers:
-            archivo1 = pd.read_csv("./data/" + seleccion + ".us.csv")
+            archivo1 = pd.read_csv('./' + seleccion + ".us.csv")
             tickers.remove(seleccion)
             estado = 1
-            #os.system('clear')
         else:
             print('Es incorrecto')
             time.sleep(2)
@@ -72,18 +88,19 @@ def menu():
   ''')
         seleccion = input('Seleccione la segunda acción, ingrese el ticker:')
         if seleccion in tickers:
-            archivo2 = pd.read_csv("./data/" + seleccion + ".us.csv")
+            archivo2 = pd.read_csv("./" + seleccion + ".us.csv")
             estado = 1
         else:
             print('Es incorrecto o igual al primer ticker seleccionado, ingrese uno diferente')
             time.sleep(2)
-            os.system('clear')
+
 
     # Procesamos los datos para cambiar nombres de columnas y formatear las fechas
+
     ticker1, ticker2, ticker1dic, ticker2dic = proceso(archivo1, archivo2)
 
-    #Menu secundario, para seleccion de analisis
 
+    #Menu secundario, para seleccion de analisis
     estado = 0
     while estado == 0:
         print('''
@@ -107,7 +124,8 @@ def menu():
             time.sleep(2)
             estado = 0
         elif seleccion == 4:
-            entre_fechas(archivo1, archivo2)
+            cruces2 = cruce_entre_fechas(ticker1dic, ticker2dic)
+            entre_fechas(archivo1, archivo2, cruces2)
             print('Archivo guardado.')
             time.sleep(2)
             estado = 0
@@ -121,9 +139,8 @@ def menu():
             estado = 0
 
 
-
+# Procesamos los datos para cambiar nombres de columnas y formatear las fechas
 def proceso(archivo1, archivo2):
-    # Procesamos los datos para cambiar nombres de columnas y formatear las fechas
     archivo1.columns = ['Ticker', 'Per', 'Date', 'Time', 'Open', 'High', 'Low', 'Close', 'Volume',
                         'Openint']
     archivo1.Date = pd.to_datetime(archivo1.Date, format='%Y%m%d')
@@ -137,29 +154,29 @@ def proceso(archivo1, archivo2):
     ticker2dic = archivo2.to_dict("index")
     return ticker1, ticker2, ticker1dic, ticker2dic
 
-
+# Analizamos los cruces en las cotizaciones
 def cruce(ticker1dic, ticker2dic, ticker1, ticker2):
-    # Analizamos los cruces en las cotizaciones
     cot1 = {}
     for i in ticker1dic:
         fecha1 = ticker1dic[i]['Date']
-        # print(fechag)
+
         apertura1 = ticker1dic[i]['Open']
-        # print(aperturag)
+
         cot1[fecha1] = apertura1
-        # print(cot1)
+
     cot2 = {}
     for i in ticker2dic:
         fecha2 = ticker2dic[i]['Date']
-        # print(fechag)
+
         apertura2 = ticker2dic[i]['Open']
-        # print(aperturag)
+
         cot2[fecha2] = apertura2
 
     fechas_ambos = cot1.keys() & cot2.keys()
     fechas_ambos = sorted(fechas_ambos)
     x = ''
     cruces = {}
+
     for v in fechas_ambos:  # Compara los valores Open con el mayor valor anterior para identificar el cruce
         if cot1[v] > cot2[v]:
             if x != 'cot1':
@@ -183,19 +200,17 @@ def cruce(ticker1dic, ticker2dic, ticker1, ticker2):
     ancho_alto = (ancho, alto)
 
     plt.figure(figsize=ancho_alto)
-    plt.subplot(311)
     plt.plot(Xg, Yg, 'b-', label=label1)
     plt.plot(Xa, Ya, 'r-', label=label2)
     plt.plot(Xc, Yc, 'y+', label='Cruces: ' + str(len(cruces)))
     plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc='lower left',
                ncol=1, mode="", borderaxespad=0.)
-    plt.subplots_adjust(hspace=.3)
     plt.show()
 
     return cruces
 
-
-def derivada_discreta(ticker1dic, ticker2dic, ticker1, ticker2):  # Calculo de la Derivada discreta para cada ticker seleccionado
+# Calculo de la Derivada discreta para cada ticker seleccionado
+def derivada_discreta(ticker1dic, ticker2dic, ticker1, ticker2):
     dd = {}
     ayer = 0
     for a in ticker1dic:
@@ -233,12 +248,12 @@ def derivada_discreta(ticker1dic, ticker2dic, ticker1, ticker2):  # Calculo de l
     plt.plot(Xa, Ya, 'r-', label=label2)
     plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc='lower left',
                ncol=1, mode="", borderaxespad=0.)
-    # plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left', borderaxespad=0.)
+
     plt.subplot(312)
     plt.plot(Xd, Yd, 'b-', label='DD ' + label1)
     plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc='lower left',
                ncol=1, mode="", borderaxespad=0.)
-    # plt.legend()
+
     plt.subplot(313)
     plt.plot(Xd2, Yd2, 'r-', label='DD ' + label2)
     plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc='lower left',
@@ -249,8 +264,8 @@ def derivada_discreta(ticker1dic, ticker2dic, ticker1, ticker2):  # Calculo de l
 
     return dd, dd2
 
-
-def crecimiento(archivo1, archivo2):  # Filtramos las fechas de interes para el calculo de crecimiento
+# Filtramos las fechas de interes para el calculo de crecimiento
+def crecimiento(archivo1, archivo2):
     octubre1 = pd.DataFrame()
     septiembre1 = pd.DataFrame()
     docemeses1 = pd.DataFrame()
@@ -295,9 +310,9 @@ def crecimiento(archivo1, archivo2):  # Filtramos las fechas de interes para el 
 
     archivoexcel = input('Seleccione un nombre para el archivo excel de crecimiento:')
 
+
     # Creamos un Pandas Excel writer usando XlsxWriter como el engine.
-    writer = pd.ExcelWriter("./data/" + archivoexcel + '.xlsx',
-                            engine='xlsxwriter')
+    writer = pd.ExcelWriter("./" + archivoexcel + '.xlsx', engine='xlsxwriter')
     datoscrecimiento = pd.DataFrame({'Crecimiento Octubre': [mayoroctubre, menoroctubre],
                                      'Crecimiento Septiembre': [mayorseptiembre, menorseptiembre],
                                      'Crecimiento doce meses': [mayordocemeses, menordocemeses]})
@@ -311,6 +326,8 @@ def crecimiento(archivo1, archivo2):  # Filtramos las fechas de interes para el 
 
     # Cerramos el Pandas Excel writer y guardamos los datos en el archivo Excel.
     writer.save()
+
+    #Salida por pantalla de los datos guardados
     print('Crecimiento Octubre')
     print(mayoroctubre)
     print(menoroctubre)
@@ -324,7 +341,8 @@ def crecimiento(archivo1, archivo2):  # Filtramos las fechas de interes para el 
     print(menordocemeses)
 
 
-def entre_fechas(archivo1, archivo2):  # Analisis de acciones entre fechas ingresadas por el usuario
+# Analisis de acciones entre fechas ingresadas por el usuario
+def entre_fechas(archivo1, archivo2, cruces2):
     fecha_inicio = input('Ingrese la fecha de inicio (YYYY-MM-DD): ')
     fecha_fin = input('Ingrese la fecha de finalizacion (YYYY-MM-DD): ')
 
@@ -344,63 +362,92 @@ def entre_fechas(archivo1, archivo2):  # Analisis de acciones entre fechas ingre
         mayorrango = 'Mayor: ' + rango2.iloc[0]['Ticker'] + ' ' + str(crrango2) + ' %'
         menorrango = 'Menor: ' + rango1.iloc[0]['Ticker'] + ' ' + str(crrango1) + ' %'
 
-    archivoexcel = input('Seleccione un nombre para el archivo excel: ')
+    rango1lis = rango1.to_dict("list")
+    rango2lis = rango2.to_dict("list")
+    rango1dic = rango1.to_dict("index")
 
-    # Create a Pandas Excel writer using XlsxWriter as the engine.
-    writer = pd.ExcelWriter("./data/" + archivoexcel + '.xlsx',
-                            engine='xlsxwriter')
-    datoscrecimiento = pd.DataFrame({'Crecimiento del ' + fecha_inicio + ' al ' + fecha_fin: [mayorrango, menorrango]})
-    datoscrecimiento.to_excel(writer, sheet_name='Tabla crecimiento')
-    rango1.to_excel(writer, sheet_name='Rango ' + str(rango1.iloc[0]['Ticker']))
-    rango2.to_excel(writer, sheet_name='Rango ' + str(rango2.iloc[0]['Ticker']))
+    Xcef = {}
 
-    # Close the Pandas Excel writer and output the Excel file.
-    writer.save()
+    for i in cruces2:
+      if str(i) > fecha_inicio and str(i) < fecha_fin:
+        fecha = i
+        apertura = cruces2[i]
+        Xcef[fecha] = apertura
 
-    print('Crecimiento entre ' + fecha_inicio + ' y ' + fecha_fin)
-    print(mayorrango)
-    print(menorrango)
-    print()
-
-
-# Preparamos los datos para graficar
-def graficar():
-    label1 = ticker1['Ticker'][0]
-    label2 = ticker2['Ticker'][0]
-    Xg = ticker1['Date']
-    Yg = ticker1['Open']
-    Xa = ticker2['Date']
-    Ya = ticker2['Open']
-    Xc = list(cruces.keys())
-    Yc = list(cruces.values())
-    Xd = list(dd.keys())
-    Yd = list(dd.values())
-    Xd2 = list(dd2.keys())
-    Yd2 = list(dd2.values())
+    #Preparamos los datos para graficar
+    label1 = rango1lis['Ticker'][0]
+    label2 = rango2lis['Ticker'][0]
+    label3 = 'Cruces: '
+    Xg = rango1lis['Date']
+    Yg = rango1lis['Open']
+    Xa = rango2lis['Date']
+    Ya = rango2lis['Open']
+    Xd = list(Xcef.keys())
+    Yd = list(Xcef.values())
 
     ancho = 20
     alto = 10
     ancho_alto = (ancho, alto)
 
     plt.figure(figsize=ancho_alto)
-    plt.subplot(311)
     plt.plot(Xg, Yg, 'b-', label=label1)
     plt.plot(Xa, Ya, 'r-', label=label2)
-    plt.plot(Xc, Yc, 'y+', label='Cruces: ' + str(len(cruces)))
+    plt.plot(Xd, Yd, 'y+', label='Cruces: ' + str(len(Xcef)))
     plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc='lower left',
                ncol=1, mode="", borderaxespad=0.)
-    # plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left', borderaxespad=0.)
-    plt.subplot(312)
-    plt.plot(Xd, Yd, 'b-', label='DD ' + label1)
-    plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc='lower left',
-               ncol=1, mode="", borderaxespad=0.)
-    # plt.legend()
-    plt.subplot(313)
-    plt.plot(Xd2, Yd2, 'r-', label='DD ' + label2)
-    plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc='lower left',
-               ncol=1, mode="", borderaxespad=0.)
-    plt.subplots_adjust(hspace=.3)
+
     plt.show()
 
+    archivoexcel = input('Seleccione un nombre para el archivo excel: ')
 
+    # Creamos un Pandas Excel writer usando XlsxWriter como el engine.
+    writer = pd.ExcelWriter("./" + archivoexcel + '.xlsx',
+                            engine='xlsxwriter')
+    datoscrecimiento = pd.DataFrame({'Crecimiento del ' + fecha_inicio + ' al ' + fecha_fin: [mayorrango, menorrango]})
+    datoscrecimiento.to_excel(writer, sheet_name='Tabla crecimiento')
+    rango1.to_excel(writer, sheet_name='Rango ' + str(rango1.iloc[0]['Ticker']))
+    rango2.to_excel(writer, sheet_name='Rango ' + str(rango2.iloc[0]['Ticker']))
+
+    # Cerramos el Pandas Excel writer y guardamos los datos en el archivo Excel.
+    writer.save()
+
+    #Salida por pantalla de los datos entre fechas
+    print('Crecimiento entre ' + fecha_inicio + ' y ' + fecha_fin)
+    print(mayorrango)
+    print(menorrango)
+    print()
+
+
+# Analisis de cruces entre fechas
+def cruce_entre_fechas(ticker1dic, ticker2dic):
+    cot1 = {}
+    for i in ticker1dic:
+        fecha1 = ticker1dic[i]['Date']
+        apertura1 = ticker1dic[i]['Open']
+        cot1[fecha1] = apertura1
+
+    cot2 = {}
+    for i in ticker2dic:
+        fecha2 = ticker2dic[i]['Date']
+        apertura2 = ticker2dic[i]['Open']
+        cot2[fecha2] = apertura2
+
+    fechas_ambos = cot1.keys() & cot2.keys()
+    fechas_ambos = sorted(fechas_ambos)
+    x = ''
+    cruces2 = {}
+
+    for v in fechas_ambos:  # Compara los valores Open con el mayor valor anterior para identificar el cruce
+        if cot1[v] > cot2[v]:
+            if x != 'cot1':
+                if x != '': cruces2[v] = cot1[v]
+                x = 'cot1'
+        else:
+            if x != 'cot2':
+                if x != '': cruces2[v] = cot2[v]
+                x = 'cot2'
+
+    return cruces2
+
+#Llamada a la funcion principal.
 menu()

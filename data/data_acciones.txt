@@ -1,0 +1,14 @@
+https://github.com/Walhtor/python_ieee_itba/blob/master/data/aapl.us.csv
+https://github.com/Walhtor/python_ieee_itba/blob/master/data/amzn.us.csv
+https://github.com/Walhtor/python_ieee_itba/blob/master/data/ge.us.csv
+https://github.com/Walhtor/python_ieee_itba/blob/master/data/gold.us.csv
+https://github.com/Walhtor/python_ieee_itba/blob/master/data/goog.us.csv
+https://github.com/Walhtor/python_ieee_itba/blob/master/data/jnj.us.csv
+https://github.com/Walhtor/python_ieee_itba/blob/master/data/jpm.us.csv
+https://github.com/Walhtor/python_ieee_itba/blob/master/data/mcd.us.csv
+https://github.com/Walhtor/python_ieee_itba/blob/master/data/meli.us.csv
+https://github.com/Walhtor/python_ieee_itba/blob/master/data/msft.us.csv
+https://github.com/Walhtor/python_ieee_itba/blob/master/data/nflx.us.csv
+https://github.com/Walhtor/python_ieee_itba/blob/master/data/tsla.us.csv
+https://github.com/Walhtor/python_ieee_itba/blob/master/data/wmt.us.csv
+https://github.com/Walhtor/python_ieee_itba/blob/master/data/xom.us.csv
